@@ -1,607 +1,478 @@
----
-title: Errors and Exceptions
-teaching: 30
-exercises: 0
-questions:
-- "How does Python report errors?"
-- "How can I handle errors in Python programs?"
-objectives:
-- "To be able to read a traceback, and determine where the error took place and what type it is."
-- "To be able to describe the types of situations in which syntax errors,
-   indentation errors, name errors, index errors, and missing file errors occur."
-keypoints:
-- "Tracebacks can look intimidating, but they give us a lot of useful information about
-   what went wrong in our program, including where the error occurred and
-   what type of error it was."
-- "An error having to do with the 'grammar' or syntax of the program is called a `SyntaxError`.
-   If the issue has to do with how the code is indented,
-   then it will be called an `IndentationError`."
-- "A `NameError` will occur when trying to use a variable that does not exist. Possible causes are
-  that a variable definition is missing, a variable reference differs from its definition
-  in spelling or capitalization, or the code contains a string that is missing quotes around it."
-- "Containers like lists and strings will generate errors if you try to access items
-   in them that do not exist. This type of error is called an `IndexError`."
-- "Trying to read a file that does not exist will give you an `FileNotFoundError`.
-   Trying to read a file that is open for writing, or writing to a file that is open for reading,
-   will give you an `IOError`."
----
-
-Every programmer encounters errors,
-both those who are just beginning,
-and those who have been programming for years.
-Encountering errors and exceptions can be very frustrating at times,
-and can make coding feel like a hopeless endeavour.
-However,
-understanding what the different types of errors are
-and when you are likely to encounter them can help a lot.
-Once you know *why* you get certain types of errors,
-they become much easier to fix.
-
-Errors in Python have a very specific form,
-called a [traceback]({{ page.root }}/reference.html#traceback).
-Let's examine one:
-
-~~~
-# This code has an intentional error. You can type it directly or
-# use it for reference to understand the error message below.
-def favorite_ice_cream():
-    ice_creams = [
-        'chocolate',
-        'vanilla',
-        'strawberry'
-    ]
-    print(ice_creams[3])
-
-favorite_ice_cream()
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-IndexError                                Traceback (most recent call last)
-<ipython-input-1-70bd89baa4df> in <module>()
-      9     print(ice_creams[3])
-      10
-----> 11 favorite_ice_cream()
-
-<ipython-input-1-70bd89baa4df> in favorite_ice_cream()
-      7         'strawberry'
-      8     ]
-----> 9     print(ice_creams[3])
-      10
-      11 favorite_ice_cream()
-
-IndexError: list index out of range
-~~~
-{: .error}
-
-This particular traceback has two levels.
-You can determine the number of levels by looking for the number of arrows on the left hand side.
-In this case:
-
-1.  The first shows code from the cell above,
-    with an arrow pointing to Line 11 (which is `favorite_ice_cream()`).
-
-2.  The second shows some code in the function `favorite_ice_cream`,
-    with an arrow pointing to Line 9 (which is `print(ice_creams[3])`).
-
-The last level is the actual place where the error occurred.
-The other level(s) show what function the program executed to get to the next level down.
-So, in this case, the program first performed a
-[function call]({{ page.root }}/reference.html#function-call) to the function `favorite_ice_cream`.
-Inside this function,
-the program encountered an error on Line 6, when it tried to run the code `print(ice_creams[3])`.
-
-> ## Long Tracebacks
->
-> Sometimes, you might see a traceback that is very long
-> -- sometimes they might even be 20 levels deep!
-> This can make it seem like something horrible happened,
-> but the length of the error message does not reflect severity, rather,
-> it indicates that your program called many functions before it encountered the error.
-> Most of the time, the actual place where the error occurred is at the bottom-most level,
-> so you can skip down the traceback to the bottom.
-{: .callout}
-
-So what error did the program actually encounter?
-In the last line of the traceback,
-Python helpfully tells us the category or type of error (in this case, it is an `IndexError`)
-and a more detailed error message (in this case, it says "list index out of range").
-
-If you encounter an error and don't know what it means,
-it is still important to read the traceback closely.
-That way,
-if you fix the error,
-but encounter a new one,
-you can tell that the error changed.
-Additionally,
-sometimes knowing *where* the error occurred is enough to fix it,
-even if you don't entirely understand the message.
-
-If you do encounter an error you don't recognize,
-try looking at the
-[official documentation on errors](http://docs.python.org/3/library/exceptions.html).
-However,
-note that you may not always be able to find the error there,
-as it is possible to create custom errors.
-In that case,
-hopefully the custom error message is informative enough to help you figure out what went wrong.
-
-> ## Better errors on newer Pythons
->
-> Newer versions of Python have improved error printouts.  If you are debugging errors, it is often
-> helpful to use the latest Python version, even if you support older versions of Python.
-{: .callout}
-
-## Syntax Errors
-
-When you forget a colon at the end of a line,
-accidentally add one space too many when indenting under an `if` statement,
-or forget a parenthesis,
-you will encounter a [syntax error]({{ page.root }}/reference.html#syntax-error).
-This means that Python couldn't figure out how to read your program.
-This is similar to forgetting punctuation in English:
-for example,
-this text is difficult to read there is no punctuation there is also no capitalization
-why is this hard because you have to figure out where each sentence ends
-you also have to figure out where each sentence begins
-to some extent it might be ambiguous if there should be a sentence break or not
-
-People can typically figure out what is meant by text with no punctuation,
-but people are much smarter than computers.
-If Python doesn't know how to read the program,
-it will give up and inform you with an error.
-For example:
-
-~~~
-def some_function()
-    msg = 'hello, world!'
-    print(msg)
-     return msg
-~~~
-{: .language-python}
-
-~~~
-  File "<ipython-input-3-6bb841ea1423>", line 1
-    def some_function()
-                       ^
-SyntaxError: invalid syntax
-~~~
-{: .error}
-
-Here, Python tells us that there is a `SyntaxError` on line 1,
-and even puts a little arrow in the place where there is an issue.
-In this case the problem is that the function definition is missing a colon at the end.
-
-Actually, the function above has *two* issues with syntax.
-If we fix the problem with the colon,
-we see that there is *also* an `IndentationError`,
-which means that the lines in the function definition do not all have the same indentation:
-
-~~~
-def some_function():
-    msg = 'hello, world!'
-    print(msg)
-     return msg
-~~~
-{: .language-python}
-
-~~~
-  File "<ipython-input-4-ae290e7659cb>", line 4
-    return msg
-    ^
-IndentationError: unexpected indent
-~~~
-{: .error}
-
-Both `SyntaxError` and `IndentationError` indicate a problem with the syntax of your program,
-but an `IndentationError` is more specific:
-it *always* means that there is a problem with how your code is indented.
-
-> ## Tabs and Spaces
->
-> Some indentation errors are harder to spot than others.
-> In particular, mixing spaces and tabs can be difficult to spot
-> because they are both [whitespace]({{ page.root }}/reference.html#whitespace).
-> In the example below, the first two lines in the body of the function
-> `some_function` are indented with tabs, while the third line &mdash; with spaces.
-> If you're working in a Jupyter notebook, be sure to copy and paste this example
-> rather than trying to type it in manually because Jupyter automatically replaces
-> tabs with spaces.
->
-> ~~~
-> def some_function():
-> 	msg = 'hello, world!'
-> 	print(msg)
->         return msg
-> ~~~
-> {: .language-python}
->
-> Visually it is impossible to spot the error.
-> Fortunately, Python does not allow you to mix tabs and spaces.
->
-> ~~~
->   File "<ipython-input-5-653b36fbcd41>", line 4
->     return msg
->               ^
-> TabError: inconsistent use of tabs and spaces in indentation
-> ~~~
-> {: .error}
-{: .callout}
-
-## Variable Name Errors
-
-Another very common type of error is called a `NameError`,
-and occurs when you try to use a variable that does not exist.
-For example:
-
-~~~
-print(a)
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-<ipython-input-7-9d7b17ad5387> in <module>()
-----> 1 print(a)
-
-NameError: name 'a' is not defined
-~~~
-{: .error}
-
-Variable name errors come with some of the most informative error messages,
-which are usually of the form "name 'the_variable_name' is not defined".
-
-Why does this error message occur?
-That's a harder question to answer,
-because it depends on what your code is supposed to do.
-However,
-there are a few very common reasons why you might have an undefined variable.
-The first is that you meant to use a
-[string]({{ page.root }}/reference.html#string), but forgot to put quotes around it:
-
-~~~
-print(hello)
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-<ipython-input-8-9553ee03b645> in <module>()
-----> 1 print(hello)
-
-NameError: name 'hello' is not defined
-~~~
-{: .error}
-
-The second reason is that you might be trying to use a variable that does not yet exist.
-In the following example,
-`count` should have been defined (e.g., with `count = 0`) before the for loop:
-
-~~~
-for number in range(10):
-    count = count + number
-print('The count is:', count)
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-<ipython-input-9-dd6a12d7ca5c> in <module>()
-      1 for number in range(10):
-----> 2     count = count + number
-      3 print('The count is:', count)
-
-NameError: name 'count' is not defined
-~~~
-{: .error}
-
-Finally, the third possibility is that you made a typo when you were writing your code.
-Let's say we fixed the error above by adding the line `Count = 0` before the for loop.
-Frustratingly, this actually does not fix the error.
-Remember that variables are [case-sensitive]({{ page.root }}/reference.html#case-sensitive),
-so the variable `count` is different from `Count`. We still get the same error,
-because we still have not defined `count`:
-
-~~~
-Count = 0
-for number in range(10):
-    count = count + number
-print('The count is:', count)
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-<ipython-input-10-d77d40059aea> in <module>()
-      1 Count = 0
-      2 for number in range(10):
-----> 3     count = count + number
-      4 print('The count is:', count)
-
-NameError: name 'count' is not defined
-~~~
-{: .error}
-
-## Index Errors
-
-Next up are errors having to do with containers (like lists and strings) and the items within them.
-If you try to access an item in a list or a string that does not exist,
-then you will get an error.
-This makes sense:
-if you asked someone what day they would like to get coffee,
-and they answered "caturday",
-you might be a bit annoyed.
-Python gets similarly annoyed if you try to ask it for an item that doesn't exist:
-
-~~~
-letters = ['a', 'b', 'c']
-print('Letter #1 is', letters[0])
-print('Letter #2 is', letters[1])
-print('Letter #3 is', letters[2])
-print('Letter #4 is', letters[3])
-~~~
-{: .language-python}
-
-~~~
-Letter #1 is a
-Letter #2 is b
-Letter #3 is c
-~~~
-{: .output}
-
-~~~
----------------------------------------------------------------------------
-IndexError                                Traceback (most recent call last)
-<ipython-input-11-d817f55b7d6c> in <module>()
-      3 print('Letter #2 is', letters[1])
-      4 print('Letter #3 is', letters[2])
-----> 5 print('Letter #4 is', letters[3])
-
-IndexError: list index out of range
-~~~
-{: .error}
-
-Here,
-Python is telling us that there is an `IndexError` in our code,
-meaning we tried to access a list index that did not exist.
-
-## File Errors
-
-The last type of error we'll cover today
-are those associated with reading and writing files: `FileNotFoundError`.
-If you try to read a file that does not exist,
-you will receive a `FileNotFoundError` telling you so.
-If you attempt to write to a file that was opened read-only, Python 3
-returns an `UnsupportedOperationError`.
-More generally, problems with input and output manifest as
-`OSError`s, which may show up as a more specific subclass; you can see
-[the list in the Python docs](https://docs.python.org/3/library/exceptions.html#os-exceptions).
-They all have a unique UNIX `errno`, which is you can see in the error message.
-
-~~~
-file_handle = open('myfile.txt', 'r')
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-FileNotFoundError                         Traceback (most recent call last)
-<ipython-input-14-f6e1ac4aee96> in <module>()
-----> 1 file_handle = open('myfile.txt', 'r')
-
-FileNotFoundError: [Errno 2] No such file or directory: 'myfile.txt'
-~~~
-{: .error}
-
-One reason for receiving this error is that you specified an incorrect path to the file.
-For example,
-if I am currently in a folder called `myproject`,
-and I have a file in `myproject/writing/myfile.txt`,
-but I try to open `myfile.txt`,
-this will fail.
-The correct path would be `writing/myfile.txt`.
-It is also possible that the file name or its path contains a typo.
-
-A related issue can occur if you use the "read" flag instead of the "write" flag.
-Python will not give you an error if you try to open a file for writing
-when the file does not exist.
-However,
-if you meant to open a file for reading,
-but accidentally opened it for writing,
-and then try to read from it,
-you will get an `UnsupportedOperation` error
-telling you that the file was not opened for reading:
-
-~~~
-file_handle = open('myfile.txt', 'w')
-file_handle.read()
-~~~
-{: .language-python}
-
-~~~
----------------------------------------------------------------------------
-UnsupportedOperation                      Traceback (most recent call last)
-<ipython-input-15-b846479bc61f> in <module>()
-      1 file_handle = open('myfile.txt', 'w')
-----> 2 file_handle.read()
-
-UnsupportedOperation: not readable
-~~~
-{: .error}
-
-These are the most common errors with files,
-though many others exist.
-If you get an error that you've never seen before,
-searching the Internet for that error type
-often reveals common reasons why you might get that error.
-
-> ## Reading Error Messages
->
-> Read the Python code and the resulting traceback below, and answer the following questions:
->
-> 1.  How many levels does the traceback have?
-> 2.  What is the function name where the error occurred?
-> 3.  On which line number in this function did the error occur?
-> 4.  What is the type of error?
-> 5.  What is the error message?
->
-> ~~~
-> # This code has an intentional error. Do not type it directly;
-> # use it for reference to understand the error message below.
-> def print_message(day):
->     messages = {
->         'monday': 'Hello, world!',
->         'tuesday': 'Today is Tuesday!',
->         'wednesday': 'It is the middle of the week.',
->         'thursday': 'Today is Donnerstag in German!',
->         'friday': 'Last day of the week!',
->         'saturday': 'Hooray for the weekend!',
->         'sunday': 'Aw, the weekend is almost over.'
->     }
->     print(messages[day])
->
-> def print_friday_message():
->     print_message('Friday')
->
-> print_friday_message()
-> ~~~
-> {: .language-python}
->
-> ~~~
-> ---------------------------------------------------------------------------
-> KeyError                                  Traceback (most recent call last)
-> <ipython-input-1-4be1945adbe2> in <module>()
->      14     print_message('Friday')
->      15
-> ---> 16 print_friday_message()
->
-> <ipython-input-1-4be1945adbe2> in print_friday_message()
->      12
->      13 def print_friday_message():
-> ---> 14     print_message('Friday')
->      15
->      16 print_friday_message()
->
-> <ipython-input-1-4be1945adbe2> in print_message(day)
->       9         'sunday': 'Aw, the weekend is almost over.'
->      10     }
-> ---> 11     print(messages[day])
->      12
->      13 def print_friday_message():
->
-> KeyError: 'Friday'
-> ~~~
-> {: .error}
->
-> > ## Solution
-> > 1. 3 levels
-> > 2. `print_message`
-> > 3. 11
-> > 4. `KeyError`
-> > 5. There isn't really a message; you're supposed
-> > to infer that `Friday` is not a key in `messages`.
-> {: .solution}
-{: .challenge}
-
-> ## Identifying Syntax Errors
->
-> 1. Read the code below, and (without running it) try to identify what the errors are.
-> 2. Run the code, and read the error message. Is it a `SyntaxError` or an `IndentationError`?
-> 3. Fix the error.
-> 4. Repeat steps 2 and 3, until you have fixed all the errors.
->
-> ~~~
-> def another_function
->   print('Syntax errors are annoying.')
->    print('But at least Python tells us about them!')
->   print('So they are usually not too hard to fix.')
-> ~~~
-> {: .language-python}
->
-> > ## Solution
-> > `SyntaxError` for missing `():` at end of first line,
-> `IndentationError` for mismatch between second and third lines.
-> > A fixed version is:
-> >
-> > ~~~
-> > def another_function():
-> >     print('Syntax errors are annoying.')
-> >     print('But at least Python tells us about them!')
-> >     print('So they are usually not too hard to fix.')
-> > ~~~
-> > {: .language-python}
-> {: .solution}
-{: .challenge}
-
-> ## Identifying Variable Name Errors
->
-> 1. Read the code below, and (without running it) try to identify what the errors are.
-> 2. Run the code, and read the error message.
->    What type of `NameError` do you think this is?
->    In other words, is it a string with no quotes,
->    a misspelled variable,
->    or a variable that should have been defined but was not?
-> 3. Fix the error.
-> 4. Repeat steps 2 and 3, until you have fixed all the errors.
->
-> ~~~
-> for number in range(10):
->     # use a if the number is a multiple of 3, otherwise use b
->     if (Number % 3) == 0:
->         message = message + a
->     else:
->         message = message + 'b'
-> print(message)
-> ~~~
-> {: .language-python}
->
-> > ## Solution
-> > 3 `NameError`s for `number` being misspelled, for `message` not defined,
-> > and for `a` not being in quotes.
-> >
-> > Fixed version:
-> >
-> > ~~~
-> > message = ''
-> > for number in range(10):
-> >     # use a if the number is a multiple of 3, otherwise use b
-> >     if (number % 3) == 0:
-> >         message = message + 'a'
-> >     else:
-> >         message = message + 'b'
-> > print(message)
-> > ~~~
-> > {: .language-python}
-> {: .solution}
-{: .challenge}
-
-> ## Identifying Index Errors
->
-> 1. Read the code below, and (without running it) try to identify what the errors are.
-> 2. Run the code, and read the error message. What type of error is it?
-> 3. Fix the error.
->
-> ~~~
-> seasons = ['Spring', 'Summer', 'Fall', 'Winter']
-> print('My favorite season is ', seasons[4])
-> ~~~
-> {: .language-python}
->
-> > ## Solution
-> > `IndexError`; the last entry is `seasons[3]`, so `seasons[4]` doesn't make sense.
-> > A fixed version is:
-> >
-> > ~~~
-> > seasons = ['Spring', 'Summer', 'Fall', 'Winter']
-> > print('My favorite season is ', seasons[-1])
-> > ~~~
-> > {: .language-python}
-> {: .solution}
-{: .challenge}
-
-{% include links.md %}
+"""CONVENTIONS:
+positions are done row-column from the bottom left and are both numbers. This corresponds to the alpha-number system in traditional chess while being computationally useful. they are specified as tuples
+"""
+import itertools
+WHITE = "white"
+BLACK = "black"
+
+
+
+
+
+
+
+class Game:
+    #ive decided since the number of pieces is capped but the type of pieces is not (pawn transformations), I've already coded much of the modularity to support just using a dictionary of pieces
+    def __init__(self):
+        self.playersturn = BLACK
+        self.message = "this is where prompts will go"
+        self.gameboard = {}
+        self.placePieces()
+        print("chess program. enter moves in algebraic notation separated by space")
+        self.main()
+
+        
+    def placePieces(self):
+
+        for i in range(0,8):
+            self.gameboard[(i,1)] = Pawn(WHITE,uniDict[WHITE][Pawn],1)
+            self.gameboard[(i,6)] = Pawn(BLACK,uniDict[BLACK][Pawn],-1)
+            
+        placers = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
+        
+        for i in range(0,8):
+            self.gameboard[(i,0)] = placers[i](WHITE,uniDict[WHITE][placers[i]])
+            self.gameboard[((7-i),7)] = placers[i](BLACK,uniDict[BLACK][placers[i]])
+        placers.reverse()
+
+        
+    def main(self):
+        
+        while True:
+            self.printBoard()
+            print(self.message)
+            self.message = ""
+            startpos,endpos = self.parseInput()
+            try:
+                target = self.gameboard[startpos]
+            except:
+                self.message = "could not find piece; index probably out of range"
+                target = None
+                
+            if target:
+                print("found "+str(target))
+                if target.Color != self.playersturn:
+                    self.message = "you aren't allowed to move that piece this turn"
+                    continue
+                if target.isValid(startpos,endpos,target.Color,self.gameboard):
+                    self.message = "that is a valid move"
+                    self.gameboard[endpos] = self.gameboard[startpos]
+                    del self.gameboard[startpos]
+                    self.isCheck()
+                    if self.playersturn == BLACK:
+                        self.playersturn = WHITE
+                    else : self.playersturn = BLACK
+                else : 
+                    self.message = "invalid move" + str(target.availableMoves(startpos[0],startpos[1],self.gameboard))
+                    print(target.availableMoves(startpos[0],startpos[1],self.gameboard))
+            else : self.message = "there is no piece in that space"
+                    
+    def isCheck(self):
+        #ascertain where the kings are, check all pieces of opposing color against those kings, then if either get hit, check if its checkmate
+        king = King
+        kingDict = {}
+        pieceDict = {BLACK : [], WHITE : []}
+        for position,piece in self.gameboard.items():
+            if type(piece) == King:
+                kingDict[piece.Color] = position
+            print(piece)
+            pieceDict[piece.Color].append((piece,position))
+        #white
+        if self.canSeeKing(kingDict[WHITE],pieceDict[BLACK]):
+            self.message = "White player is in check"
+        if self.canSeeKing(kingDict[BLACK],pieceDict[WHITE]):
+            self.message = "Black player is in check"
+        
+        
+    def canSeeKing(self,kingpos,piecelist):
+        #checks if any pieces in piece list (which is an array of (piece,position) tuples) can see the king in kingpos
+        for piece,position in piecelist:
+            if piece.isValid(position,kingpos,piece.Color,self.gameboard):
+                return True
+                
+    def parseInput(self):
+        try:
+            a,b = input().split()
+            a = ((ord(a[0])-97), int(a[1])-1)
+            b = (ord(b[0])-97, int(b[1])-1)
+            print(a,b)
+            return (a,b)
+        except:
+            print("error decoding input. please try again")
+            return((-1,-1),(-1,-1))
+    
+    """def validateInput(self, *kargs):
+        for arg in kargs:
+            if type(arg[0]) is not type(1) or type(arg[1]) is not type(1):
+                return False
+        return True"""
+        
+    def printBoard(self):
+        print("  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
+        for i in range(0,8):
+            print("-"*32)
+            print(chr(i+97),end="|")
+            for j in range(0,8):
+                item = self.gameboard.get((i,j)," ")
+                print(str(item)+' |', end = " ")
+            print()
+        print("-"*32)
+            
+           
+        
+    """game class. contains the following members and methods:
+    two arrays of pieces for each player
+    8x8 piece array with references to these pieces
+    a parse function, which turns the input from the user into a list of two tuples denoting start and end points
+    a checkmateExists function which checks if either players are in checkmate
+    a checkExists function which checks if either players are in check (woah, I just got that nonsequitur)
+    a main loop, which takes input, runs it through the parser, asks the piece if the move is valid, and moves the piece if it is. if the move conflicts with another piece, that piece is removed. ischeck(mate) is run, and if there is a checkmate, the game prints a message as to who wins
+    """
+
+class Piece:
+    
+    def __init__(self,color,name):
+        self.name = name
+        self.position = None
+        self.Color = color
+    def isValid(self,startpos,endpos,Color,gameboard):
+        if endpos in self.availableMoves(startpos[0],startpos[1],gameboard, Color = Color):
+            return True
+        return False
+    def __repr__(self):
+        return self.name
+    
+    def __str__(self):
+        return self.name
+    
+    def availableMoves(self,x,y,gameboard):
+        print("ERROR: no movement for base class")
+        
+    def AdNauseum(self,x,y,gameboard, Color, intervals):
+        """repeats the given interval until another piece is run into. 
+        if that piece is not of the same color, that square is added and
+         then the list is returned"""
+        answers = []
+        for xint,yint in intervals:
+            xtemp,ytemp = x+xint,y+yint
+            while self.isInBounds(xtemp,ytemp):
+                #print(str((xtemp,ytemp))+"is in bounds")
+                
+                target = gameboard.get((xtemp,ytemp),None)
+                if target is None: answers.append((xtemp,ytemp))
+                elif target.Color != Color: 
+                    answers.append((xtemp,ytemp))
+                    break
+                else:
+                    break
+                
+                xtemp,ytemp = xtemp + xint,ytemp + yint
+        return answers
+                
+    def isInBounds(self,x,y):
+        "checks if a position is on the board"
+        if x >= 0 and x < 8 and y >= 0 and y < 8:
+            return True
+        return False
+    
+    def noConflict(self,gameboard,initialColor,x,y):
+        "checks if a single position poses no conflict to the rules of chess"
+        if self.isInBounds(x,y) and (((x,y) not in gameboard) or gameboard[(x,y)].Color != initialColor) : return True
+        return False
+        
+        
+chessCardinals = [(1,0),(0,1),(-1,0),(0,-1)]
+chessDiagonals = [(1,1),(-1,1),(1,-1),(-1,-1)]
+
+def knightList(x,y,int1,int2):
+    """sepcifically for the rook, permutes the values needed around a position for noConflict tests"""
+    return [(x+int1,y+int2),(x-int1,y+int2),(x+int1,y-int2),(x-int1,y-int2),(x+int2,y+int1),(x-int2,y+int1),(x+int2,y-int1),(x-int2,y-int1)]
+def kingList(x,y):
+    return [(x+1,y),(x+1,y+1),(x+1,y-1),(x,y+1),(x,y-1),(x-1,y),(x-1,y+1),(x-1,y-1)]
+
+
+
+class Knight(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return [(xx,yy) for xx,yy in knightList(x,y,2,1) if self.noConflict(gameboard, Color, xx, yy)]
+        
+class Rook(Piece):
+    def availableMoves(self,x,y,gameboard ,Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessCardinals)
+        
+class Bishop(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessDiagonals)
+        
+class Queen(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessCardinals+chessDiagonals)
+        
+class King(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return [(xx,yy) for xx,yy in kingList(x,y) if self.noConflict(gameboard, Color, xx, yy)]
+        
+class Pawn(Piece):
+    def __init__(self,color,name,direction):
+        self.name = name
+        self.Color = color
+        #of course, the smallest piece is the hardest to code. direction should be either 1 or -1, should be -1 if the pawn is traveling "backwards"
+        self.direction = direction
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        answers = []
+        if (x+1,y+self.direction) in gameboard and self.noConflict(gameboard, Color, x+1, y+self.direction) : answers.append((x+1,y+self.direction))
+        if (x-1,y+self.direction) in gameboard and self.noConflict(gameboard, Color, x-1, y+self.direction) : answers.append((x-1,y+self.direction))
+        if (x,y+self.direction) not in gameboard and Color == self.Color : answers.append((x,y+self.direction))# the condition after the and is to make sure the non-capturing movement (the only fucking one in the game) is not used in the calculation of checkmate
+        return answers
+
+uniDict = {WHITE : {Pawn : "♙", Rook : "♖", Knight : "♘", Bishop : "♗", King : "♔", Queen : "♕" }, BLACK : {Pawn : "♟", Rook : "♜", Knight : "♞", Bishop : "♝", King : "♚", Queen : "♛" }}
+        
+
+        
+
+
+Game()
+
+
+
+
+"""CONVENTIONS:
+positions are done row-column from the bottom left and are both numbers. This corresponds to the alpha-number system in traditional chess while being computationally useful. they are specified as tuples
+"""
+import itertools
+WHITE = "white"
+BLACK = "black"
+
+
+
+
+
+
+
+class Game:
+    #ive decided since the number of pieces is capped but the type of pieces is not (pawn transformations), I've already coded much of the modularity to support just using a dictionary of pieces
+    def __init__(self):
+        self.playersturn = BLACK
+        self.message = "this is where prompts will go"
+        self.gameboard = {}
+        self.placePieces()
+        print("chess program. enter moves in algebraic notation separated by space")
+        self.main()
+
+        
+    def placePieces(self):
+
+        for i in range(0,8):
+            self.gameboard[(i,1)] = Pawn(WHITE,uniDict[WHITE][Pawn],1)
+            self.gameboard[(i,6)] = Pawn(BLACK,uniDict[BLACK][Pawn],-1)
+            
+        placers = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
+        
+        for i in range(0,8):
+            self.gameboard[(i,0)] = placers[i](WHITE,uniDict[WHITE][placers[i]])
+            self.gameboard[((7-i),7)] = placers[i](BLACK,uniDict[BLACK][placers[i]])
+        placers.reverse()
+
+        
+    def main(self):
+        
+        while True:
+            self.printBoard()
+            print(self.message)
+            self.message = ""
+            startpos,endpos = self.parseInput()
+            try:
+                target = self.gameboard[startpos]
+            except:
+                self.message = "could not find piece; index probably out of range"
+                target = None
+                
+            if target:
+                print("found "+str(target))
+                if target.Color != self.playersturn:
+                    self.message = "you aren't allowed to move that piece this turn"
+                    continue
+                if target.isValid(startpos,endpos,target.Color,self.gameboard):
+                    self.message = "that is a valid move"
+                    self.gameboard[endpos] = self.gameboard[startpos]
+                    del self.gameboard[startpos]
+                    self.isCheck()
+                    if self.playersturn == BLACK:
+                        self.playersturn = WHITE
+                    else : self.playersturn = BLACK
+                else : 
+                    self.message = "invalid move" + str(target.availableMoves(startpos[0],startpos[1],self.gameboard))
+                    print(target.availableMoves(startpos[0],startpos[1],self.gameboard))
+            else : self.message = "there is no piece in that space"
+                    
+    def isCheck(self):
+        #ascertain where the kings are, check all pieces of opposing color against those kings, then if either get hit, check if its checkmate
+        king = King
+        kingDict = {}
+        pieceDict = {BLACK : [], WHITE : []}
+        for position,piece in self.gameboard.items():
+            if type(piece) == King:
+                kingDict[piece.Color] = position
+            print(piece)
+            pieceDict[piece.Color].append((piece,position))
+        #white
+        if self.canSeeKing(kingDict[WHITE],pieceDict[BLACK]):
+            self.message = "White player is in check"
+        if self.canSeeKing(kingDict[BLACK],pieceDict[WHITE]):
+            self.message = "Black player is in check"
+        
+        
+    def canSeeKing(self,kingpos,piecelist):
+        #checks if any pieces in piece list (which is an array of (piece,position) tuples) can see the king in kingpos
+        for piece,position in piecelist:
+            if piece.isValid(position,kingpos,piece.Color,self.gameboard):
+                return True
+                
+    def parseInput(self):
+        try:
+            a,b = input().split()
+            a = ((ord(a[0])-97), int(a[1])-1)
+            b = (ord(b[0])-97, int(b[1])-1)
+            print(a,b)
+            return (a,b)
+        except:
+            print("error decoding input. please try again")
+            return((-1,-1),(-1,-1))
+    
+    """def validateInput(self, *kargs):
+        for arg in kargs:
+            if type(arg[0]) is not type(1) or type(arg[1]) is not type(1):
+                return False
+        return True"""
+        
+    def printBoard(self):
+        print("  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
+        for i in range(0,8):
+            print("-"*32)
+            print(chr(i+97),end="|")
+            for j in range(0,8):
+                item = self.gameboard.get((i,j)," ")
+                print(str(item)+' |', end = " ")
+            print()
+        print("-"*32)
+            
+           
+        
+    """game class. contains the following members and methods:
+    two arrays of pieces for each player
+    8x8 piece array with references to these pieces
+    a parse function, which turns the input from the user into a list of two tuples denoting start and end points
+    a checkmateExists function which checks if either players are in checkmate
+    a checkExists function which checks if either players are in check (woah, I just got that nonsequitur)
+    a main loop, which takes input, runs it through the parser, asks the piece if the move is valid, and moves the piece if it is. if the move conflicts with another piece, that piece is removed. ischeck(mate) is run, and if there is a checkmate, the game prints a message as to who wins
+    """
+
+class Piece:
+    
+    def __init__(self,color,name):
+        self.name = name
+        self.position = None
+        self.Color = color
+    def isValid(self,startpos,endpos,Color,gameboard):
+        if endpos in self.availableMoves(startpos[0],startpos[1],gameboard, Color = Color):
+            return True
+        return False
+    def __repr__(self):
+        return self.name
+    
+    def __str__(self):
+        return self.name
+    
+    def availableMoves(self,x,y,gameboard):
+        print("ERROR: no movement for base class")
+        
+    def AdNauseum(self,x,y,gameboard, Color, intervals):
+        """repeats the given interval until another piece is run into. 
+        if that piece is not of the same color, that square is added and
+         then the list is returned"""
+        answers = []
+        for xint,yint in intervals:
+            xtemp,ytemp = x+xint,y+yint
+            while self.isInBounds(xtemp,ytemp):
+                #print(str((xtemp,ytemp))+"is in bounds")
+                
+                target = gameboard.get((xtemp,ytemp),None)
+                if target is None: answers.append((xtemp,ytemp))
+                elif target.Color != Color: 
+                    answers.append((xtemp,ytemp))
+                    break
+                else:
+                    break
+                
+                xtemp,ytemp = xtemp + xint,ytemp + yint
+        return answers
+                
+    def isInBounds(self,x,y):
+        "checks if a position is on the board"
+        if x >= 0 and x < 8 and y >= 0 and y < 8:
+            return True
+        return False
+    
+    def noConflict(self,gameboard,initialColor,x,y):
+        "checks if a single position poses no conflict to the rules of chess"
+        if self.isInBounds(x,y) and (((x,y) not in gameboard) or gameboard[(x,y)].Color != initialColor) : return True
+        return False
+        
+        
+chessCardinals = [(1,0),(0,1),(-1,0),(0,-1)]
+chessDiagonals = [(1,1),(-1,1),(1,-1),(-1,-1)]
+
+def knightList(x,y,int1,int2):
+    """sepcifically for the rook, permutes the values needed around a position for noConflict tests"""
+    return [(x+int1,y+int2),(x-int1,y+int2),(x+int1,y-int2),(x-int1,y-int2),(x+int2,y+int1),(x-int2,y+int1),(x+int2,y-int1),(x-int2,y-int1)]
+def kingList(x,y):
+    return [(x+1,y),(x+1,y+1),(x+1,y-1),(x,y+1),(x,y-1),(x-1,y),(x-1,y+1),(x-1,y-1)]
+
+
+
+class Knight(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return [(xx,yy) for xx,yy in knightList(x,y,2,1) if self.noConflict(gameboard, Color, xx, yy)]
+        
+class Rook(Piece):
+    def availableMoves(self,x,y,gameboard ,Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessCardinals)
+        
+class Bishop(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessDiagonals)
+        
+class Queen(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return self.AdNauseum(x, y, gameboard, Color, chessCardinals+chessDiagonals)
+        
+class King(Piece):
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        return [(xx,yy) for xx,yy in kingList(x,y) if self.noConflict(gameboard, Color, xx, yy)]
+        
+class Pawn(Piece):
+    def __init__(self,color,name,direction):
+        self.name = name
+        self.Color = color
+        #of course, the smallest piece is the hardest to code. direction should be either 1 or -1, should be -1 if the pawn is traveling "backwards"
+        self.direction = direction
+    def availableMoves(self,x,y,gameboard, Color = None):
+        if Color is None : Color = self.Color
+        answers = []
+        if (x+1,y+self.direction) in gameboard and self.noConflict(gameboard, Color, x+1, y+self.direction) : answers.append((x+1,y+self.direction))
+        if (x-1,y+self.direction) in gameboard and self.noConflict(gameboard, Color, x-1, y+self.direction) : answers.append((x-1,y+self.direction))
+        if (x,y+self.direction) not in gameboard and Color == self.Color : answers.append((x,y+self.direction))# the condition after the and is to make sure the non-capturing movement (the only fucking one in the game) is not used in the calculation of checkmate
+        return answers
+
+uniDict = {WHITE : {Pawn : "♙", Rook : "♖", Knight : "♘", Bishop : "♗", King : "♔", Queen : "♕" }, BLACK : {Pawn : "♟", Rook : "♜", Knight : "♞", Bishop : "♝", King : "♚", Queen : "♛" }}
